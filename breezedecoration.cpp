@@ -110,10 +110,6 @@ namespace SierraBreeze
 
         auto c = client().data();
 
-        if ( isKonsoleWindow(c) ) {
-            return m_KonsoleTitleBarColor;
-        }
-
         if( hideTitleBar() ) return c->color( ColorGroup::Inactive, ColorRole::TitleBar );
         else if( m_animation->state() == QPropertyAnimation::Running )
         {
@@ -147,24 +143,12 @@ namespace SierraBreeze
         auto c = client().data();
         if( m_animation->state() == QPropertyAnimation::Running )
         {
-            if ( isKonsoleWindow(c) ) {
-                return KColorUtils::mix(
-                        m_KonsoleTitleBarTextColorInactive,
-                        m_KonsoleTitleBarTextColorActive,
-                        m_opacity );
-            }
-            else {
-                return KColorUtils::mix(
-                        c->color( ColorGroup::Inactive, ColorRole::Foreground ),
-                        c->color( ColorGroup::Active, ColorRole::Foreground ),
-                        m_opacity );
-            }
+            return KColorUtils::mix(
+                    c->color( ColorGroup::Inactive, ColorRole::Foreground ),
+                    c->color( ColorGroup::Active, ColorRole::Foreground ),
+                    m_opacity );
         } else {
-            if ( isKonsoleWindow(c) ) {
-                return  c->isActive() ? m_KonsoleTitleBarTextColorActive : m_KonsoleTitleBarTextColorInactive;
-            } else {
-                return  c->color( c->isActive() ? ColorGroup::Active : ColorGroup::Inactive, ColorRole::Foreground );
-            }
+            return  c->color( c->isActive() ? ColorGroup::Active : ColorGroup::Inactive, ColorRole::Foreground );
         }
     }
 
@@ -302,74 +286,6 @@ namespace SierraBreeze
     }
 
     //________________________________________________________________
-    void Decoration::readKonsoleProfileColor()
-    {
-        m_KonsoleTitleBarColorValid = false;
-
-        const KConfig konsoleConfig("konsolerc");
-        const QString defaultProfileFile = konsoleConfig.group("Desktop Entry").readEntry("DefaultProfile", QString());
-
-        // Konsole config profile path
-        const QString configLocation(QDir::homePath() + "/.local/share/konsole/");
-        const QString shellProfileLocation(configLocation + defaultProfileFile);
-
-        if (!QFile::exists(shellProfileLocation)) {
-            return;
-        }
-
-        const KConfig configProfile(shellProfileLocation, KConfig::NoGlobals);
-
-        const QString colorFileLocation = configLocation + configProfile.group("Appearance").readEntry("ColorScheme", QString()) + ".colorscheme";
-
-        if (!QFile::exists(colorFileLocation)) {
-            return;
-        }
-
-        const KConfig configColor(colorFileLocation, KConfig::NoGlobals);
-        const QStringList backgroundRGB = configColor.group("Background").readEntry("Color").split(',');
-
-        if (backgroundRGB.size() != 3) {
-            return;
-        }
-
-        m_KonsoleTitleBarColor.setRed(backgroundRGB[0].toInt());
-        m_KonsoleTitleBarColor.setGreen(backgroundRGB[1].toInt());
-        m_KonsoleTitleBarColor.setBlue(backgroundRGB[2].toInt());
-
-        m_KonsoleTitleBarColor.setAlpha(configColor.group("General").readEntry("Opacity").toFloat() * 255);
-
-        // Text color
-        const QStringList foregroundRGB = configColor.group("Foreground").readEntry("Color").split(',');
-
-        if (foregroundRGB.size() != 3) {
-            return;
-        }
-
-        m_KonsoleTitleBarTextColorActive.setRed(foregroundRGB[0].toInt());
-        m_KonsoleTitleBarTextColorActive.setGreen(foregroundRGB[1].toInt());
-        m_KonsoleTitleBarTextColorActive.setBlue(foregroundRGB[2].toInt());
-
-        m_KonsoleTitleBarTextColorInactive = m_KonsoleTitleBarTextColorActive;
-        m_KonsoleTitleBarTextColorInactive.setAlphaF(0.5);
-
-        m_KonsoleTitleBarColorValid = true;
-    }
-
-    //________________________________________________________________
-    bool Decoration::isKonsoleWindow(KDecoration2::DecoratedClient *dc) const
-    {
-        if (!m_KonsoleTitleBarColorValid) {
-          return false;
-        }
-
-        KWindowInfo info(dc->windowId(), 0, NET::WM2WindowClass | NET::WM2WindowRole);
-
-        return info.valid() &&
-          info.windowClassClass() == QByteArray("konsole") &&
-          info.windowRole().startsWith("MainWindow");
-    }
-
-    //________________________________________________________________
     void Decoration::reconfigure()
     {
 
@@ -383,9 +299,6 @@ namespace SierraBreeze
 
         // shadow
         createShadow();
-
-        // konsole title bar color and transparency
-        readKonsoleProfileColor();
 
         // size grip
         if( hasNoBorders() && m_internalSettings->drawSizeGrip() ) createSizeGrip();
@@ -540,11 +453,7 @@ void Decoration::createButtons()
             painter->setRenderHint(QPainter::Antialiasing);
             painter->setPen(Qt::NoPen);
 
-            if ( isKonsoleWindow(c) ) {
-                painter->setBrush( m_KonsoleTitleBarColor );
-            } else {
-                painter->setBrush( c->color( c->isActive() ? ColorGroup::Active : ColorGroup::Inactive, ColorRole::Frame ) );
-            }
+            painter->setBrush( c->color( c->isActive() ? ColorGroup::Active : ColorGroup::Inactive, ColorRole::Frame ) );
 
             // clip away the top part
             if( !hideTitleBar() ) painter->setClipRect(0, borderTop(), size().width(), size().height() - borderTop(), Qt::IntersectClip);
@@ -586,7 +495,7 @@ void Decoration::createButtons()
         painter->setPen(Qt::NoPen);
 
         // render a linear gradient on title area
-        if ( c->isActive() && m_internalSettings->drawBackgroundGradient() && !isKonsoleWindow(c) )
+        if ( c->isActive() && m_internalSettings->drawBackgroundGradient() )
         {
 
             // TODO Review this. Initialize titleBarColor based on user's choise.
@@ -596,18 +505,13 @@ void Decoration::createButtons()
             gradient.setColorAt(0.8, titleBarColor);
             painter->setBrush(gradient);
 
-        } else if ( !isKonsoleWindow(c) ) {
+        } else {
 
             // TODO Review this. Initialize titleBarColor based on user's choise.
             // I needed another else if because the window might not be active or has drawBackgroundGradient but
             // I still need to take care the konsole case.
             const QColor titleBarColor = (matchColorForTitleBar()  ? matchedTitleBarColor : this->titleBarColor() );
             painter->setBrush(titleBarColor);
-
-        } else {
-
-            QColor titleBarColor = this->titleBarColor();
-            painter->setBrush( titleBarColor );
 
         }
 

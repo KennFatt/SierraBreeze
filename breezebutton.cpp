@@ -26,6 +26,7 @@
 #include <KColorUtils>
 
 #include <QPainter>
+#include <QPainterPath>
 
 namespace SierraBreeze
 {
@@ -211,21 +212,16 @@ namespace SierraBreeze
 
                 case DecorationButtonType::Close:
                 {
-                  QColor button_color = QColor(242, 80, 86);
+                  QColor button_color = QColor(228, 107, 59);
                   if (!c->isActive())
-                    button_color = QColor(199, 199, 199);
+                    button_color = QColor(92, 91, 87);
                   painter->setBrush( button_color );
                   painter->setPen( Qt::NoPen );
                   painter->drawEllipse( QRectF( 0, 0, 18, 18 ) );
                   painter->setBrush( Qt::NoBrush );
-                  if ( isHovered() )
-                  {
-                    painter->setPen( hint_pen );
-                    // painter->setPen(pen);
-                    // it's a cross
-                    painter->drawLine( QPointF( 6, 6 ), QPointF( 12, 12 ) );
-                    painter->drawLine( QPointF( 6, 12 ), QPointF( 12, 6 ) );
-                  }
+                  painter->setPen( hint_pen );
+                  painter->drawLine( QPointF( 6, 6 ), QPointF( 12, 12 ) );
+                  painter->drawLine( QPointF( 6, 12 ), QPointF( 12, 6 ) );
                   painter->setPen( pen );
 
                   break;
@@ -233,32 +229,29 @@ namespace SierraBreeze
 
                 case DecorationButtonType::Maximize:
                 {
-                  QColor button_color = QColor(19, 209, 61);
+                  QColor button_color = QColor(105, 104, 99);
                   if (!c->isActive())
-                    button_color = QColor(199, 199, 199);
+                    button_color = QColor(92, 91, 87);
 
                   painter->setBrush( button_color );
                   painter->setPen( Qt::NoPen );
                   // painter->drawEllipse( QRectF( 3, 3, 12, 12 ) );
                   painter->drawEllipse( QRectF( 0, 0, 18, 18 ) );
                   painter->setBrush( Qt::NoBrush );
-                  if ( isHovered() )
-                  {
-                    painter->setPen( hint_pen );
-                    // two triangles
-                    QPainterPath path1, path2;
-                    path1.moveTo(5, 13);
-                    path1.lineTo(11, 13);
-                    path1.lineTo(5, 7);
+                  painter->setPen( hint_pen );
+                  // two triangles
+                  QPainterPath path1, path2;
+                  path1.moveTo(5, 13);
+                  path1.lineTo(11, 13);
+                  path1.lineTo(5, 7);
 
-                    path2.moveTo(13, 5);
-                    path2.lineTo(7, 5);
-                    path2.lineTo(13, 11);
+                  path2.moveTo(13, 5);
+                  path2.lineTo(7, 5);
+                  path2.lineTo(13, 11);
 
 
-                    painter->fillPath(path1, QBrush(hover_hint_color));
-                    painter->fillPath(path2, QBrush(hover_hint_color));
-                  }
+                  painter->fillPath(path1, QBrush(hover_hint_color));
+                  painter->fillPath(path2, QBrush(hover_hint_color));
                   painter->setPen( pen );
                     // if( isChecked() )
                     // {
@@ -282,22 +275,19 @@ namespace SierraBreeze
 
                 case DecorationButtonType::Minimize:
                 {
-                  QColor button_color = QColor(252, 190, 7);
+                  QColor button_color = QColor(105, 104, 99);
                   if (!c->isActive())
-                    button_color = QColor(199, 199, 199);
+                    button_color = QColor(92, 91, 87);
                   painter->setBrush( button_color );
                   painter->setPen( Qt::NoPen );
                   // painter->drawEllipse( QRectF( 3, 3, 12, 12 ) );
                   painter->drawEllipse( QRectF( 0, 0, 18, 18 ) );
                   painter->setBrush( Qt::NoBrush );
-                  if ( isHovered() )
-                    {
-                      painter->setPen( hint_pen );
-                      // painter->drawLine( QPointF( 6, 9 ), QPointF( 12, 9 ) );
-                      painter->drawLine( QPointF( 5, 9 ), QPointF( 13, 9 ) );
-                    }
+                  painter->setPen( hint_pen );
+                  // painter->drawLine( QPointF( 6, 9 ), QPointF( 12, 9 ) );
+                  painter->drawLine( QPointF( 5, 9 ), QPointF( 13, 9 ) );
                   painter->setPen( pen );
-                    break;
+                  break;
                 }
 
                 case DecorationButtonType::OnAllDesktops:
