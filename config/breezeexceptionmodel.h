@@ -25,57 +25,46 @@
 // IN THE SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 
+#include "breeze.h"
 #include "breezelistmodel.h"
 #include "breezesettings.h"
-#include "breeze.h"
 
-namespace SierraBreeze
-{
+namespace SierraBreeze {
 
-    //* qlistview for object counters
-    class ExceptionModel: public ListModel<InternalSettingsPtr>
-    {
+//* qlistview for object counters
+class ExceptionModel : public ListModel<InternalSettingsPtr> {
+public:
+    //* number of columns
+    enum { nColumns = 3 };
 
-        public:
+    //* column type enumeration
+    enum ColumnType { ColumnEnabled, ColumnType, ColumnRegExp };
 
-        //* number of columns
-        enum { nColumns = 3 };
+    //*@name methods reimplemented from base class
+    //@{
 
-        //* column type enumeration
-        enum ColumnType {
-            ColumnEnabled,
-            ColumnType,
-            ColumnRegExp
-        };
+    //* return data for a given index
+    QVariant data(const QModelIndex& index, int role) const override;
 
+    //* header data
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
-        //*@name methods reimplemented from base class
-        //@{
+    //* number of columns for a given index
+    int columnCount(const QModelIndex&) const override {
+        return nColumns;
+    }
 
-        //* return data for a given index
-        QVariant data(const QModelIndex &index, int role) const override;
+    //@}
 
-        //* header data
-        QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+protected:
+    //* sort
+    void privateSort(int, Qt::SortOrder) override {}
 
-        //* number of columns for a given index
-        int columnCount(const QModelIndex& ) const override
-        { return nColumns; }
+private:
+    //* column titles
+    static const QString m_columnTitles[nColumns];
+};
 
-        //@}
-
-        protected:
-
-        //* sort
-        void privateSort( int, Qt::SortOrder ) override
-        {}
-
-        private:
-
-        //* column titles
-        static const QString m_columnTitles[ nColumns ];
-
-    };
-
-}
+}    // namespace SierraBreeze
 #endif

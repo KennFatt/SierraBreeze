@@ -20,57 +20,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "breezedecoration.h"
-#include "breezesettings.h"
-#include "breeze.h"
-
 #include <KSharedConfig>
-
 #include <QObject>
 
-namespace SierraBreeze
-{
+#include "breeze.h"
+#include "breezedecoration.h"
+#include "breezesettings.h"
 
-    class SettingsProvider: public QObject
-    {
+namespace SierraBreeze {
 
-        Q_OBJECT
+class SettingsProvider : public QObject {
+    Q_OBJECT
 
-        public:
+public:
+    //* destructor
+    ~SettingsProvider();
 
-        //* destructor
-        ~SettingsProvider();
+    //* singleton
+    static SettingsProvider *self();
 
-        //* singleton
-        static SettingsProvider *self();
+    //* internal settings for given decoration
+    InternalSettingsPtr internalSettings(Decoration *) const;
 
-        //* internal settings for given decoration
-        InternalSettingsPtr internalSettings(Decoration *) const;
+public Q_SLOTS:
 
-        public Q_SLOTS:
+    //* reconfigure
+    void reconfigure(void);
 
-        //* reconfigure
-        void reconfigure( void );
+private:
+    //* contructor
+    SettingsProvider(void);
 
-        private:
+    //* default configuration
+    InternalSettingsPtr m_defaultSettings;
 
-        //* contructor
-        SettingsProvider( void );
+    //* exceptions
+    InternalSettingsList m_exceptions;
 
-        //* default configuration
-        InternalSettingsPtr m_defaultSettings;
+    //* config object
+    KSharedConfigPtr m_config;
 
-        //* exceptions
-        InternalSettingsList m_exceptions;
+    //* singleton
+    static SettingsProvider *s_self;
+};
 
-        //* config object
-        KSharedConfigPtr m_config;
-
-        //* singleton
-        static SettingsProvider *s_self;
-
-    };
-
-}
+}    // namespace SierraBreeze
 
 #endif

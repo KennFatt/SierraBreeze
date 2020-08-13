@@ -25,101 +25,95 @@
 // IN THE SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 
-#include "ui_breezeexceptionlistwidget.h"
 #include "breezeexceptionmodel.h"
+#include "ui_breezeexceptionlistwidget.h"
 
 //* QDialog used to commit selected files
-namespace SierraBreeze
-{
+namespace SierraBreeze {
 
-    class ExceptionListWidget: public QWidget
-    {
+class ExceptionListWidget : public QWidget {
+    //* Qt meta object
+    Q_OBJECT
 
-        //* Qt meta object
-        Q_OBJECT
+public:
+    //* constructor
+    explicit ExceptionListWidget(QWidget* = 0);
 
-        public:
+    //* set exceptions
+    void setExceptions(const InternalSettingsList&);
 
-        //* constructor
-        explicit ExceptionListWidget( QWidget* = 0 );
+    //* get exceptions
+    InternalSettingsList exceptions(void);
 
-        //* set exceptions
-        void setExceptions( const InternalSettingsList& );
+    //* true if changed
+    virtual bool isChanged(void) const {
+        return m_changed;
+    }
 
-        //* get exceptions
-        InternalSettingsList exceptions( void );
+Q_SIGNALS:
 
-        //* true if changed
-        virtual bool isChanged( void ) const
-        { return m_changed; }
+    //* emitted when changed
+    void changed(bool);
 
-        Q_SIGNALS:
+protected:
+    //* model
+    const ExceptionModel& model() const {
+        return m_model;
+    }
 
-        //* emitted when changed
-        void changed( bool );
+    //* model
+    ExceptionModel& model() {
+        return m_model;
+    }
 
-        protected:
+protected Q_SLOTS:
 
-        //* model
-        const ExceptionModel& model() const
-        { return m_model; }
+    //* update button states
+    virtual void updateButtons(void);
 
-        //* model
-        ExceptionModel& model()
-        { return m_model; }
+    //* add
+    virtual void add(void);
 
-        protected Q_SLOTS:
+    //* edit
+    virtual void edit(void);
 
-        //* update button states
-        virtual void updateButtons( void );
+    //* remove
+    virtual void remove(void);
 
-        //* add
-        virtual void add( void );
+    //* toggle
+    virtual void toggle(const QModelIndex&);
 
-        //* edit
-        virtual void edit( void );
+    //* move up
+    virtual void up(void);
 
-        //* remove
-        virtual void remove( void );
+    //* move down
+    virtual void down(void);
 
-        //* toggle
-        virtual void toggle( const QModelIndex& );
+protected:
+    //* resize columns
+    void resizeColumns(void) const;
 
-        //* move up
-        virtual void up( void );
+    //* check exception
+    bool checkException(InternalSettingsPtr);
 
-        //* move down
-        virtual void down( void );
+    //* set changed state
+    virtual void setChanged(bool value) {
+        m_changed = value;
+        emit changed(value);
+    }
 
-        protected:
+private:
+    //* model
+    ExceptionModel m_model;
 
-        //* resize columns
-        void resizeColumns( void ) const;
+    //* ui
+    // Ui_BreezeExceptionListWidget m_ui;
+    Ui_SierraBreezeExceptionListWidget m_ui;
 
-        //* check exception
-        bool checkException( InternalSettingsPtr );
+    //* changed state
+    bool m_changed = false;
+};
 
-        //* set changed state
-        virtual void setChanged( bool value )
-        {
-            m_changed = value;
-            emit changed( value );
-        }
-
-        private:
-
-        //* model
-        ExceptionModel m_model;
-
-        //* ui
-        // Ui_BreezeExceptionListWidget m_ui;
-        Ui_SierraBreezeExceptionListWidget m_ui;
-
-        //* changed state
-        bool m_changed = false;
-
-    };
-
-}
+}    // namespace SierraBreeze
 
 #endif

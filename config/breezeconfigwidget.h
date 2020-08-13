@@ -25,69 +25,61 @@
 // IN THE SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 
-#include "ui_breezeconfigurationui.h"
-#include "breezeexceptionlistwidget.h"
-#include "breezesettings.h"
-#include "breeze.h"
-
 #include <KCModule>
 #include <KSharedConfig>
-
-#include <QWidget>
 #include <QSharedPointer>
+#include <QWidget>
 
-namespace SierraBreeze
-{
+#include "breeze.h"
+#include "breezeexceptionlistwidget.h"
+#include "breezesettings.h"
+#include "ui_breezeconfigurationui.h"
 
-    //_____________________________________________
-    class ConfigWidget: public KCModule
-    {
+namespace SierraBreeze {
 
-        Q_OBJECT
+//_____________________________________________
+class ConfigWidget : public KCModule {
+    Q_OBJECT
 
-        public:
+public:
+    //* constructor
+    explicit ConfigWidget(QWidget*, const QVariantList&);
 
-        //* constructor
-        explicit ConfigWidget( QWidget*, const QVariantList& );
+    //* destructor
+    virtual ~ConfigWidget(void) = default;
 
-        //* destructor
-        virtual ~ConfigWidget( void ) = default;
+    //* default
+    void defaults() override;
 
-        //* default
-        void defaults() override;
+    //* load configuration
+    void load(void) override;
 
-        //* load configuration
-        void load( void ) override;
+    //* save configuration
+    void save(void) override;
 
-        //* save configuration
-        void save( void ) override;
+protected Q_SLOTS:
 
-        protected Q_SLOTS:
+    //* update changed state
+    virtual void updateChanged();
 
-        //* update changed state
-        virtual void updateChanged();
+protected:
+    //* set changed state
+    void setChanged(bool);
 
-        protected:
+private:
+    //* ui
+    Ui_BreezeConfigurationUI m_ui;
 
-        //* set changed state
-        void setChanged( bool );
+    //* kconfiguration object
+    KSharedConfig::Ptr m_configuration;
 
-        private:
+    //* internal exception
+    InternalSettingsPtr m_internalSettings;
 
-        //* ui
-        Ui_BreezeConfigurationUI m_ui;
+    //* changed state
+    bool m_changed;
+};
 
-        //* kconfiguration object
-        KSharedConfig::Ptr m_configuration;
-
-        //* internal exception
-        InternalSettingsPtr m_internalSettings;
-
-        //* changed state
-        bool m_changed;
-
-    };
-
-}
+}    // namespace SierraBreeze
 
 #endif

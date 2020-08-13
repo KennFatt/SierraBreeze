@@ -25,90 +25,83 @@
 // IN THE SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 
-#include "ui_breezeexceptiondialog.h"
-#include "breeze.h"
-
 #include <QCheckBox>
 #include <QMap>
 
-namespace SierraBreeze
-{
+#include "breeze.h"
+#include "ui_breezeexceptiondialog.h"
 
-    class DetectDialog;
+namespace SierraBreeze {
 
-    //* breeze exceptions list
-    class ExceptionDialog: public QDialog
-    {
+class DetectDialog;
 
-        Q_OBJECT
+//* breeze exceptions list
+class ExceptionDialog : public QDialog {
+    Q_OBJECT
 
-        public:
+public:
+    //* constructor
+    explicit ExceptionDialog(QWidget* parent);
 
-        //* constructor
-        explicit ExceptionDialog( QWidget* parent );
+    //* destructor
+    virtual ~ExceptionDialog(void) {}
 
-        //* destructor
-        virtual ~ExceptionDialog( void )
-        {}
+    //* set exception
+    void setException(InternalSettingsPtr);
 
-        //* set exception
-        void setException( InternalSettingsPtr );
+    //* save exception
+    void save(void);
 
-        //* save exception
-        void save( void );
+    //* true if changed
+    virtual bool isChanged(void) const {
+        return m_changed;
+    }
 
-        //* true if changed
-        virtual bool isChanged( void ) const
-        { return m_changed; }
+Q_SIGNALS:
 
-        Q_SIGNALS:
+    //* emmited when changed
+    void changed(bool);
 
-        //* emmited when changed
-        void changed( bool );
+protected:
+    //* set changed state
+    virtual void setChanged(bool value) {
+        m_changed = value;
+        emit changed(value);
+    }
 
-        protected:
+protected Q_SLOTS:
 
-        //* set changed state
-        virtual void setChanged( bool value )
-        {
-            m_changed = value;
-            emit changed( value );
-        }
+    //* check whether configuration is changed and emit appropriate signal if
+    //yes
+    virtual void updateChanged();
 
-        protected Q_SLOTS:
+private Q_SLOTS:
 
-        //* check whether configuration is changed and emit appropriate signal if yes
-        virtual void updateChanged();
+    //* select window properties from grabbed pointers
+    void selectWindowProperties(void);
 
-        private Q_SLOTS:
+    //* read properties of selected window
+    void readWindowProperties(bool);
 
-        //* select window properties from grabbed pointers
-        void selectWindowProperties( void );
+private:
+    //* map mask and checkbox
+    using CheckBoxMap = QMap<ExceptionMask, QCheckBox*>;
 
-        //* read properties of selected window
-        void readWindowProperties( bool );
+    Ui::BreezeExceptionDialog m_ui;
 
-        private:
+    //* map mask and checkbox
+    CheckBoxMap m_checkboxes;
 
-        //* map mask and checkbox
-        using CheckBoxMap=QMap< ExceptionMask, QCheckBox*>;
+    //* internal exception
+    InternalSettingsPtr m_exception;
 
-        Ui::BreezeExceptionDialog m_ui;
+    //* detection dialog
+    DetectDialog* m_detectDialog = nullptr;
 
-        //* map mask and checkbox
-        CheckBoxMap m_checkboxes;
+    //* changed state
+    bool m_changed = false;
+};
 
-        //* internal exception
-        InternalSettingsPtr m_exception;
-
-        //* detection dialog
-        DetectDialog* m_detectDialog = nullptr;
-
-        //* changed state
-        bool m_changed = false;
-
-    };
-
-}
+}    // namespace SierraBreeze
 
 #endif

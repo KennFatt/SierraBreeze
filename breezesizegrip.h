@@ -20,81 +20,70 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .        *
  *************************************************************************/
 
-#include "breezedecoration.h"
-#include "config-breeze.h"
-
 #include <QMouseEvent>
 #include <QPaintEvent>
-#include <QWidget>
 #include <QPointer>
+#include <QWidget>
+
+#include "breezedecoration.h"
+#include "config-breeze.h"
 
 #if BREEZE_HAVE_X11
 #include <xcb/xcb.h>
 #endif
 
-namespace SierraBreeze
-{
+namespace SierraBreeze {
 
-    //* implements size grip for all widgets
-    class SizeGrip: public QWidget
-    {
+//* implements size grip for all widgets
+class SizeGrip : public QWidget {
+    Q_OBJECT
 
-        Q_OBJECT
+public:
+    //* constructor
+    explicit SizeGrip(Decoration*);
 
-        public:
+    //* constructor
+    virtual ~SizeGrip(void);
 
-        //* constructor
-        explicit SizeGrip( Decoration* );
+protected Q_SLOTS:
 
-        //* constructor
-        virtual ~SizeGrip( void );
+    //* update background color
+    void updateActiveState(void);
 
-        protected Q_SLOTS:
+    //* update position
+    void updatePosition(void);
 
-        //* update background color
-        void updateActiveState( void );
+    //* embed into parent widget
+    void embed(void);
 
-        //* update position
-        void updatePosition( void );
+protected:
+    //*@name event handlers
+    //@{
 
-        //* embed into parent widget
-        void embed( void );
+    //* paint
+    virtual void paintEvent(QPaintEvent*) override;
 
-        protected:
+    //* mouse press
+    virtual void mousePressEvent(QMouseEvent*) override;
 
-        //*@name event handlers
-        //@{
+    //@}
 
-        //* paint
-        virtual void paintEvent( QPaintEvent* ) override;
+private:
+    //* send resize event
+    void sendMoveResizeEvent(QPoint);
 
-        //* mouse press
-        virtual void mousePressEvent( QMouseEvent* ) override;
+    //* grip size
+    enum { Offset = 0, GripSize = 14 };
 
-        //@}
+    //* decoration
+    QPointer<Decoration> m_decoration;
 
-        private:
+//* move/resize atom
+#if BREEZE_HAVE_X11
+    xcb_atom_t m_moveResizeAtom = 0;
+#endif
+};
 
-        //* send resize event
-        void sendMoveResizeEvent( QPoint );
-
-        //* grip size
-        enum {
-            Offset = 0,
-            GripSize = 14
-        };
-
-        //* decoration
-        QPointer<Decoration> m_decoration;
-
-        //* move/resize atom
-        #if BREEZE_HAVE_X11
-        xcb_atom_t m_moveResizeAtom = 0;
-        #endif
-
-    };
-
-
-}
+}    // namespace SierraBreeze
 
 #endif

@@ -30,8 +30,7 @@
 // IN THE SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 
-#include "breezesettings.h"
-#include "ui_breezedetectwidget.h"
+#include <kwindowsystem.h>
 
 #include <QByteArray>
 #include <QCheckBox>
@@ -39,75 +38,72 @@
 #include <QEvent>
 #include <QLabel>
 
-#include <kwindowsystem.h>
+#include "breezesettings.h"
+#include "ui_breezedetectwidget.h"
 
-namespace SierraBreeze
-{
+namespace SierraBreeze {
 
-    class DetectDialog : public QDialog
-    {
+class DetectDialog : public QDialog {
+    Q_OBJECT
 
-        Q_OBJECT
+public:
+    //* constructor
+    explicit DetectDialog(QWidget*);
 
-        public:
+    //* read window properties or select one from mouse grab
+    void detect(WId window);
 
-        //* constructor
-        explicit DetectDialog( QWidget* );
+    //* selected class
+    QByteArray selectedClass() const;
 
-        //* read window properties or select one from mouse grab
-        void detect( WId window );
+    //* window information
+    const KWindowInfo& windowInfo() const {
+        return *(m_info.data());
+    }
 
-        //* selected class
-        QByteArray selectedClass() const;
+    //* exception type
+    InternalSettings::EnumExceptionType exceptionType() const {
+        if (m_ui.windowClassCheckBox->isChecked())
+            return InternalSettings::ExceptionWindowClassName;
+        else if (m_ui.windowTitleCheckBox->isChecked())
+            return InternalSettings::ExceptionWindowTitle;
+        else
+            return InternalSettings::ExceptionWindowClassName;
+    }
 
-        //* window information
-        const KWindowInfo& windowInfo() const
-        { return *(m_info.data()); }
+Q_SIGNALS:
 
-        //* exception type
-        InternalSettings::EnumExceptionType exceptionType() const
-        {
-            if( m_ui.windowClassCheckBox->isChecked() ) return InternalSettings::ExceptionWindowClassName;
-            else if( m_ui.windowTitleCheckBox->isChecked() ) return InternalSettings::ExceptionWindowTitle;
-            else return InternalSettings::ExceptionWindowClassName;
-        }
+    void detectionDone(bool);
 
-        Q_SIGNALS:
+protected:
+    bool eventFilter(QObject* o, QEvent* e) override;
 
-        void detectionDone( bool );
+private:
+    //* select window from grab
+    void selectWindow();
 
-        protected:
+    //* read window properties
+    void readWindow(WId window);
 
-        bool eventFilter( QObject* o, QEvent* e ) override;
+    //* find window under cursor
+    WId findWindow();
 
-        private:
+    //* execute
+    void executeDialog(void);
 
-        //* select window from grab
-        void selectWindow();
+    //* ui
+    Ui::BreezeDetectWidget m_ui;
 
-        //* read window properties
-        void readWindow( WId window );
+    //* invisible dialog used to grab mouse
+    QDialog* m_grabber = nullptr;
 
-        //* find window under cursor
-        WId findWindow();
+    //* current window information
+    QScopedPointer<KWindowInfo> m_info;
 
-        //* execute
-        void executeDialog( void );
+    //* wm state atom
+    quint32 m_wmStateAtom = 0;
+};
 
-        //* ui
-        Ui::BreezeDetectWidget m_ui;
-
-        //* invisible dialog used to grab mouse
-        QDialog* m_grabber = nullptr;
-
-        //* current window information
-        QScopedPointer<KWindowInfo> m_info;
-
-        //* wm state atom
-        quint32 m_wmStateAtom = 0;
-
-    };
-
-} // namespace
+}    // namespace SierraBreeze
 
 #endif
